@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f7fb">
+<title>BNA Learning System</title>
+
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface2: #eef2f7;
+  --text: #203047;
+  --muted: #53647a;
+  --line: #d8e0ea;
+  --accent: #245b85;
+  --blue: #e9f4fc;
+  --blue-ink: #245879;
+  --pink: #fcecf3;
+  --pink-ink: #85425e;
+  --green: #eef6e8;
+  --green-ink: #43642c;
+  --orange: #fff1df;
+  --orange-ink: #84551f;
+  --shadow: 0 8px 26px rgba(27, 46, 72, .06);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111923;
+  --surface: #1b2634;
+  --surface2: #243244;
+  --text: #edf3fb;
+  --muted: #b3c2d4;
+  --line: #3b4b60;
+  --accent: #9acdf4;
+  --blue: #20394d;
+  --blue-ink: #b1dcfa;
+  --pink: #412c3b;
+  --pink-ink: #f2bfd5;
+  --green: #2b3c29;
+  --green-ink: #c0dfa9;
+  --orange: #423525;
+  --orange-ink: #f0cc99;
+  --shadow: 0 8px 26px rgba(0, 0, 0, .12);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI",
+    "Noto Sans TC", sans-serif;
+  line-height: 1.65;
+}
+button, input { font: inherit; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .45; }
+a { color: var(--accent); }
+h1, h2, h3, p { margin-top: 0; }
+h1 { font-size: clamp(1.8rem, 6vw, 2.6rem); line-height: 1.2; }
+h2 { font-size: 1.22rem; line-height: 1.4; }
+h3 { font-size: 1.05rem; }
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+[hidden] { display: none !important; }
+
+.skip {
+  position: fixed;
+  top: -80px;
+  left: 12px;
+  z-index: 100;
+  background: var(--surface);
+  padding: 12px;
+}
+.skip:focus { top: 10px; }
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.header-inner {
+  max-width: 900px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+}
+.brand { flex: 1; min-width: 0; }
+.brand strong { display: block; font-size: .98rem; }
+.brand small { color: var(--muted); font-size: .75rem; }
+.control {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  background: var(--surface2);
+  color: var(--text);
+  font-size: .87rem;
+}
+.control:hover:not(:disabled) { border-color: var(--accent); }
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(0, 0, 0, .42);
+}
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(330px, 88vw);
+  z-index: 31;
+  background: var(--surface);
+  padding: 22px;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+}
+.drawer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.drawer nav { display: grid; gap: 10px; margin-top: 22px; }
+.drawer a {
+  display: flex;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text);
+}
+.drawer a[aria-current="page"] {
+  background: var(--blue);
+  border-color: var(--accent);
+}
+.drawer a span:first-child {
+  color: var(--muted);
+  font-size: .86rem;
+}
+
+main, footer {
+  max-width: 780px;
+  margin: auto;
+  padding: 24px 18px;
+}
+.page-head { padding: 10px 0 8px; }
+.eyebrow {
+  color: var(--accent);
+  font-size: .78rem;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.intro { color: var(--muted); font-size: 1.02rem; }
+.module-strip {
+  display: flex;
+  gap: 6px;
+  margin: 18px 0 26px;
+}
+.module-strip a {
+  height: 7px;
+  flex: 1;
+  border-radius: 20px;
+  background: var(--line);
+}
+.module-strip a[aria-current="page"] { background: var(--accent); }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  margin: 18px 0;
+  box-shadow: var(--shadow);
+}
+.blue { background: var(--blue); color: var(--blue-ink); }
+.pink { background: var(--pink); color: var(--pink-ink); }
+.green { background: var(--green); color: var(--green-ink); }
+.orange { background: var(--orange); color: var(--orange-ink); }
+.tag {
+  display: inline-block;
+  border-radius: 8px;
+  padding: 4px 9px;
+  font-size: .77rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.muted { color: var(--muted); font-size: .9rem; }
+.stack { display: grid; gap: 12px; }
+.row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 1px solid currentColor;
+  border-radius: 12px;
+  font-size: .88rem;
+  font-weight: 800;
+}
+.row h3 { margin-bottom: 4px; }
+.row p { margin-bottom: 0; }
+.flow { display: grid; gap: 0; }
+.flow-node {
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+.flow-node strong { display: block; }
+.flow-node p { margin: 4px 0 0; font-size: .92rem; }
+.arrow {
+  text-align: center;
+  padding: 5px;
+  color: var(--muted);
+  font-size: 22px;
+}
+.notice {
+  padding: 13px 15px;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  background: var(--surface2);
+  margin-top: 14px;
+  font-size: .92rem;
+}
+progress {
+  width: 100%;
+  height: 12px;
+  accent-color: var(--accent);
+}
+.progress-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.progress-head p { margin: 0; }
+.stage-list {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+}
+.stage-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.stage-button[aria-pressed="true"] {
+  background: var(--blue);
+  border-color: var(--accent);
+}
+.stage-number {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface2);
+  font-weight: 750;
+}
+.stage-label { flex: 1; }
+.stage-done { color: var(--accent); font-weight: 800; }
+.detail-block {
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.detail-block .tag { margin-bottom: 5px; }
+.detail-block p { margin: 0; }
+.check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 18px;
+}
+.check input {
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+}
+.check label { cursor: pointer; }
+.file-name {
+  font-family: ui-monospace, monospace;
+  font-size: 1.2rem;
+  font-weight: 750;
+}
+.meta {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-size: .9rem;
+}
+.role-list { display: grid; gap: 12px; }
+.role {
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.role strong { display: block; }
+.role p { margin: 4px 0 0; }
+ul { padding-left: 22px; }
+li + li { margin-top: 7px; }
+
+.bottom-nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  margin-top: 30px;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.bottom-nav button { min-height: 44px; }
+footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: .83rem;
+  padding-top: 8px;
+  padding-bottom: 36px;
+}
+footer p { margin: 5px 0; }
+
+@media (max-width: 420px) {
+  .header-inner { gap: 6px; padding: 10px; }
+  .brand strong { font-size: .85rem; }
+  .brand small { display: none; }
+  .control { padding: 8px; font-size: .8rem; }
+  .panel { padding: 16px; }
+  .bottom-nav { grid-template-columns: 1fr 1fr; }
+  #top-button { grid-column: 1 / -1; grid-row: 2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main" id="skip-link">Skip to content</a>
+
+<header>
+  <div class="header-inner">
+    <button class="control" id="menu-button"
+      aria-expanded="false" aria-controls="drawer"
+      aria-haspopup="dialog">☰</button>
+
+    <div class="brand">
+      <strong id="brand-title">BNA Learning System</strong>
+      <small>BNA × EMI · Version 1.0.0</small>
+    </div>
+
+    <button class="control" id="language-button">繁中</button>
+    <button class="control" id="theme-button">◐</button>
+  </div>
+</header>
+
+<div class="backdrop" id="backdrop" hidden></div>
+
+<aside class="drawer" id="drawer" role="dialog"
+  aria-modal="true" aria-labelledby="menu-title" hidden>
+  <div class="drawer-top">
+    <h2 id="menu-title">Modules</h2>
+    <button class="control" id="close-menu">✕</button>
+  </div>
+  <p class="muted" id="menu-description"></p>
+  <nav id="module-menu" aria-label="Modules"></nav>
+</aside>
+
+<main id="main" tabindex="-1">
+  <div class="page-head">
+    <p class="eyebrow" id="module-label"></p>
+    <h1 id="page-title" tabindex="-1"></h1>
+    <p class="intro" id="page-intro"></p>
+    <nav class="module-strip" id="module-strip"
+      aria-label="Module progress"></nav>
+  </div>
+
+  <div id="content"></div>
+
+  <nav class="bottom-nav" id="bottom-navigation"
+    aria-label="Module navigation">
+    <button class="control" id="previous-button"></button>
+    <button class="control" id="top-button"></button>
+    <button class="control" id="next-button"></button>
+  </nav>
+
+  <noscript>
+    <section class="panel">
+      <h2>JavaScript required / 需要啟用 JavaScript</h2>
+      <p>
+        Enable JavaScript to use this bilingual application.
+        請啟用 JavaScript 以使用此雙語應用程式。
+      </p>
+    </section>
+  </noscript>
+</main>
+
+<footer>
+  <p>Architect : Prof.Shihmin Lo</p>
+  <p>Version 1.0.0</p>
+  <p>© 2026 Prof.Shihmin Lo. All rights reserved.</p>
+</footer>
+
+<script>
+const VERSION = "1.0.0";
+const KEY = "bna-spa-v1";
+const $ = id => document.getElementById(id);
+const pair = (en, zh) => ({ en, zh });
+
+const modules = [
+  {
+    id: "overview",
+    title: pair("Overview & Principles", "總覽與核心原則"),
+    intro: pair(
+      "A visual learning system: turn classroom materials into verified knowledge, then into visuals and shareable outputs.",
+      "以視覺化學習系統，將課堂素材轉成經確認的知識，再延伸為圖解與可分享的成果。"
+    )
+  },
+  {
+    id: "workflow",
+    title: pair("Learning Workflow", "學習工作流程"),
+    intro: pair(
+      "Select a stage to inspect its input, action, output, and checkpoint. Complete seven required stages; deployment is optional.",
+      "點選階段查看輸入、行動、輸出與確認條件。七個階段為必要流程，部署則為選用。"
+    )
+  },
+  {
+    id: "documents",
+    title: pair("Document System", "文件分工系統"),
+    intro: pair(
+      "Three documents serve three different purposes. They are not a mandatory sequence.",
+      "三種文件各有用途，不是必須依序完成的三個步驟。"
+    )
+  },
+  {
+    id: "collaboration",
+    title: pair("AI & Collaboration", "AI 與協作"),
+    intro: pair(
+      "AI supports the work. Humans retain judgment, critical thinking, creativity, and final confirmation.",
+      "AI 協助工作，人類保留判斷、批判思考、創意與最終確認責任。"
+    )
+  },
+  {
+    id: "product",
+    title: pair("Product & Market", "產品與市場"),
+    intro: pair(
+      "An optional pathway when a learning output is developed into a product.",
+      "當學習成果要進一步發展為產品時，才使用這條支持路徑。"
+    )
+  },
+  {
+    id: "outputs",
+    title: pair("Outputs & Deployment", "輸出與部署"),
+    intro: pair(
+      "Choose the format for the purpose. Publishing provides access, not proof of market demand.",
+      "依目的選擇輸出形式。發布提供存取管道，但不代表已證明市場需求。"
+    )
+  }
+];
+
+const stages = [
+  {
+    title: pair("Collect materials", "收集素材"),
+    input: pair("Handwritten notes, audio, videos, and images.", "手寫筆記、錄音、影片與圖片。"),
+    action: pair("Organize files, identify sources and classroom context, and preserve originals.", "整理檔案，記錄來源與課堂背景，保留原始版本。"),
+    output: pair("A traceable source collection.", "可追溯的來源素材集合。"),
+    gate: pair("Main materials are available and their sources can be identified.", "主要素材已備妥，且來源可以辨識。")
+  },
+  {
+    title: pair("Recognize & preserve meaning", "辨識並保留原意"),
+    input: pair("The original source collection.", "原始素材集合。"),
+    action: pair("Extract text; preserve colors, arrows, highlights, and spatial groupings. Flag uncertainty.", "擷取文字，保留顏色、箭頭、標示與位置分組，註記不確定項目。"),
+    output: pair("A transcription, visual relationship record, and uncertainty list.", "轉錄稿、視覺關係紀錄與疑義清單。"),
+    gate: pair("Direct readings and proposed interpretations are separated. Do not silently guess.", "直接辨識的內容與推測解釋已分開，不默默猜測。")
+  },
+  {
+    title: pair("Separate & investigate", "拆解與深入調查"),
+    input: pair("Recognized content and visual relationships.", "已辨識內容與視覺關係。"),
+    action: pair("Separate problems, demand, questions, and components. Investigate evidence, examples, and connections.", "拆解問題、需求、提問與組件，調查證據、例子及其連結。"),
+    output: pair("A topic structure, findings, evidence, and possible relationships.", "主題結構、分析發現、證據與可能關係。"),
+    gate: pair("Supported conclusions are distinguished from assumptions.", "有證據的結論與假設已清楚區分。")
+  },
+  {
+    title: pair("Clarify & confirm", "釐清與確認"),
+    input: pair("Uncertainties and proposed relationships.", "疑義與待確認關係。"),
+    action: pair("Discuss with the note owner; correct misreadings and revisit analysis when needed.", "與筆記提供者討論，修正誤讀，必要時返回分析。"),
+    output: pair("Confirmed meanings and explicitly labeled open questions.", "確認後的含義與明確標示的未解問題。"),
+    gate: pair("Ambiguities affecting the main structure are resolved.", "影響主要結構的疑義已解決。")
+  },
+  {
+    title: pair("Recombine → insights → KB.md", "重組 → 洞見 → KB.md"),
+    input: pair("Confirmed analytical findings.", "已確認的分析結果。"),
+    action: pair("Integrate sections and relationships. Separate source content from added explanations and insights.", "整合章節與關係，區分來源內容、補充解釋與洞見。"),
+    output: pair("A structured, systematic, process-oriented knowledge base.", "結構化、系統化、流程導向的知識庫。"),
+    gate: pair("Readers can understand the questions, methods, relationships, and conclusions.", "讀者能理解問題、方法、關係與結論。")
+  },
+  {
+    title: pair("Review & approve", "審查與核准"),
+    input: pair("The KB.md draft.", "KB.md 初稿。"),
+    action: pair("Check accuracy, omissions, scope, relationships, and emphasis. Revise before approval.", "檢查正確性、遺漏、範圍、關係與重點，修正後再核准。"),
+    output: pair("An approved knowledge base.", "已核准的知識庫。"),
+    gate: pair("The content is approved as the basis for visualization.", "內容已獲核准，可作為視覺化依據。")
+  },
+  {
+    title: pair("Create & review SVG", "製作與檢查 SVG"),
+    input: pair("The approved knowledge base.", "已核准的知識庫。"),
+    action: pair("Use a portrait layout, topic colors, labels, and arrows. Check fidelity and mobile readability.", "使用直向布局、主題色、標籤與箭頭，檢查內容一致性與手機可讀性。"),
+    output: pair("A scalable, reviewed SVG diagram.", "可縮放且經檢查的 SVG 圖解。"),
+    gate: pair("The diagram matches the knowledge base and remains readable.", "圖解忠於知識庫且清楚可讀。")
+  }
+];
+
+const ui = {
+  brand: pair("BNA Learning System", "BNA 學習系統"),
+  modules: pair("Modules", "主題模組"),
+  menuInfo: pair("Choose a topic. The menu closes automatically.", "選取主題後，選單會自動收合。"),
+  open: pair("Open module menu", "開啟模組選單"),
+  close: pair("Close menu", "關閉選單"),
+  previous: pair("← Previous", "← 上一頁"),
+  next: pair("Next →", "下一頁 →"),
+  top: pair("Back to top ↑", "回到頂端 ↑"),
+  skip: pair("Skip to content", "跳至主要內容"),
+  module: pair("Module", "模組"),
+  input: pair("Input", "輸入"),
+  action: pair("Action", "行動"),
+  output: pair("Output", "輸出"),
+  gate: pair("Checkpoint", "確認條件"),
+  progress: pair("Required progress", "必要流程進度"),
+  reset: pair("Reset", "重設"),
+  resetQuestion: pair("Reset all seven completion checkmarks?", "是否清除七個階段的完成勾選？"),
+  confirmed: pair("I have completed and checked this stage.", "我已完成並檢查這個階段。"),
+  local: pair(
+    "Checkmarks are human confirmation, not automatic verification. Progress stays in this browser.",
+    "勾選代表人工確認，不是自動驗證。進度僅保存在此瀏覽器。"
+  ),
+  noStorage: pair(
+    "Browser storage is unavailable. Changes will not persist after closing or reloading.",
+    "瀏覽器儲存不可用，關閉或重新載入後將不保留變更。"
+  ),
+  stageDetail: pair("Stage details", "階段詳情"),
+  nav: pair("Module navigation", "模組導覽"),
+  switchLanguage: pair("Switch to Traditional Chinese", "切換至英文"),
+  light: pair("Light", "淺色"),
+  dark: pair("Dark", "深色")
+};
+
+let stored = {};
+let storageOK = true;
+try {
+  const value = JSON.parse(localStorage.getItem(KEY) || "{}");
+  if (value && typeof value === "object" && !Array.isArray(value)) stored = value;
+} catch { storageOK = false; }
+
+const deviceDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+const state = {
+  lang: stored.lang === "zh" ? "zh" : "en",
+  theme: ["light", "dark"].includes(stored.theme)
+    ? stored.theme : (deviceDark ? "dark" : "light"),
+  done: Array.from({ length: 7 }, (_, i) => stored.done?.[i] === true),
+  stage: 0
+};
+
+let current = 0;
+const t = value => value[state.lang];
+const text = (en, zh) => t(pair(en, zh));
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify({
+      lang: state.lang,
+      theme: state.theme,
+      done: state.done
+    }));
+  } catch { storageOK = false; }
+}
+
+function node(title, description, color = "blue") {
+  return `<div class="flow-node ${color}">
+    <strong>${title}</strong><p>${description}</p>
+  </div>`;
+}
+
+function flow(items) {
+  return `<div class="flow">${
+    items.map((item, i) =>
+      (i ? '<div class="arrow" aria-hidden="true">↓</div>' : "") +
+      node(...item)
+    ).join("")
+  }</div>`;
+}
+
+function panel(title, body, color = "") {
+  return `<section class="panel ${color}">
+    <h2>${title}</h2>${body}
+  </section>`;
+}
+
+function overview() {
+  const architecture = flow([
+    [text("01 · Classroom materials", "01 · 課堂素材"),
+     text("Notes · Audio · Video · Images", "筆記 · 錄音 · 影片 · 圖片"), "green"],
+    [text("02 · Analytical thinking", "02 · 分析思考"),
+     text("Separate → Investigate → Clarify → Recombine", "拆解 → 調查 → 釐清 → 重組"), "blue"],
+    [text("03 · Verified knowledge", "03 · 經確認的知識"),
+     text("KB.md → review and approval", "KB.md → 審查與核准"), "green"],
+    [text("04 · Visual representation", "04 · 視覺呈現"),
+     text("SVG diagram; Coggle for mind mapping", "SVG 圖解；Coggle 用於心智圖"), "green"],
+    [text("05 · Optional publication", "05 · 選用發布"),
+     text("Webpage / SPA → URL → sharing", "網頁 / SPA → 網址 → 分享"), "orange"]
+  ]);
+
+  const qualities = [
+    ["S1", text("Structured", "結構化"),
+     text("Clear topics, levels, and relationships.", "清楚的主題、層級與關係。")],
+    ["S2", text("Systematic", "系統化"),
+     text("A consistent method for processing and verification.", "一致的處理與驗證方法。")],
+    ["P", text("Process-oriented", "流程導向"),
+     text("Input → Action → Output → Checkpoint.", "輸入 → 行動 → 輸出 → 確認條件。")]
+  ];
+
+  return panel(text("System Architecture", "系統架構"), architecture) +
+    panel(text("Three Design Principles", "三項設計原則"),
+      `<div class="stack">${qualities.map(q =>
+        `<div class="row"><span class="icon">${q[0]}</span>
+         <div><h3>${q[1]}</h3><p>${q[2]}</p></div></div>`
+      ).join("")}</div>`, "pink") +
+    panel(text("Quality Before Speed", "品質先於速度"),
+      `<p>${text(
+        "Effectiveness means achieving the intended purpose. Efficiency should support effectiveness—not replace understanding, evidence, or judgment.",
+        "有效性是達成預期目的。效率應支持有效性，而非取代理解、證據與判斷。"
+      )}</p>
+      <div class="notice">${text(
+        "Do not chase efficiency blindly.",
+        "不要盲目追求效率。"
+      )}</div>`) +
+    panel(text("Topic Color System", "主題色彩系統"),
+      `<div class="stack">
+        <div class="flow-node blue">${text("Blue · Analytical thinking", "藍色 · 分析思考")}</div>
+        <div class="flow-node pink">${text("Pink · Quality and presentation", "粉色 · 品質與呈現")}</div>
+        <div class="flow-node green">${text("Green · AI, content, and documents", "綠色 · AI、內容與文件")}</div>
+        <div class="flow-node orange">${text("Orange · Web implementation and delivery", "橘色 · 網頁實作與交付")}</div>
+      </div>`) +
+    panel("BNA × EMI",
+      `<p><strong>BNA:</strong> Business News Analysis ${
+        text("", "（商業新聞分析）")
+      }</p><p><strong>EMI:</strong> English as a Medium of Instruction ${
+        text("", "（以英語為教學媒介）")
+      }</p>`);
+}
+
+function workflow() {
+  const completed = state.done.filter(Boolean).length;
+
+  return panel(t(ui.progress),
+    `<div class="progress-head">
+      <p id="completion-text" aria-live="polite">${completed} / 7</p>
+      <button class="control" id="reset">${t(ui.reset)}</button>
+    </div>
+    <progress value="${completed}" max="7"
+      aria-label="${t(ui.progress)}"></progress>
+    <p class="muted">${t(ui.local)}</p>
+    ${!storageOK ? `<p class="notice">${t(ui.noStorage)}</p>` : ""}
+    <div class="stage-list">
+      ${stages.map((stage, i) => `
+        <button class="stage-button" data-stage="${i}"
+          aria-pressed="${state.stage === i}" aria-controls="stage-detail">
+          <span class="stage-number">${i + 1}</span>
+          <span class="stage-label">${t(stage.title)}</span>
+          ${state.done[i] ? `<span class="stage-done"
+            aria-label="${text("Completed", "已完成")}">✓</span>` : ""}
+        </button>
+      `).join("")}
+    </div>`) +
+    `<section class="panel blue" id="stage-detail"
+      aria-labelledby="stage-heading">
+      ${stageDetails()}
+    </section>` +
+    panel(text("Optional Continuation", "選用延伸"),
+      `<p>${text(
+        "After approval: build a webpage → test → deploy → obtain a URL → share.",
+        "核准後：建立網頁 → 測試 → 部署 → 取得網址 → 分享。"
+      )}</p>
+      <p class="muted">${text(
+        "Deployment is not part of the seven required completion stages.",
+        "部署不列入七個必要完成階段。"
+      )}</p>`, "orange");
+}
+
+function stageDetails() {
+  const s = stages[state.stage];
+  return `<span class="tag">${text("Stage", "階段")} ${state.stage + 1} / 7</span>
+    <h2 id="stage-heading" tabindex="-1">${t(s.title)}</h2>
+    ${[
+      ["input", "green"],
+      ["action", "blue"],
+      ["output", "green"],
+      ["gate", "pink"]
+    ].map(([key, color]) => `
+      <div class="detail-block">
+        <span class="tag ${color}">${t(ui[key])}</span>
+        <p>${t(s[key])}</p>
+      </div>
+    `).join("")}
+    <div class="check">
+      <input id="stage-complete" type="checkbox"
+        ${state.done[state.stage] ? "checked" : ""}>
+      <label for="stage-complete">${t(ui.confirmed)}</label>
+    </div>`;
+}
+
+function documents() {
+  const files = [
+    ["KB.md", "K", text("Knowledge", "知識"),
+     text("What do we know?", "我們知道什麼？"),
+     text("Topics, definitions, findings, relationships, insights, and open questions.",
+          "主題、定義、發現、關係、洞見與未解問題。")],
+    ["handoff.md", "H", text("Continuity", "延續"),
+     text("How can the next person continue?", "下一位如何接續？"),
+     text("Context, progress, decisions, unresolved issues, current files, and next actions.",
+          "背景、進度、決策、未解事項、目前檔案與下一步。")],
+    ["PRD.md", "P", text("Requirements", "需求"),
+     text("What should the product do?", "產品應該做什麼？"),
+     text("Problem, target users, functions, specifications, scope, and acceptance criteria.",
+          "問題、目標使用者、功能、規格、範圍與驗收條件。")]
+  ];
+
+  return files.map(f => panel(
+    `<span class="file-name">${f[0]}</span>`,
+    `<div class="row"><span class="icon">${f[1]}</span>
+      <div><h3>${f[2]}</h3><p>${f[3]}</p></div>
+    </div><div class="meta">${f[4]}</div>`, "green"
+  )).join("") +
+    panel(text("Relationship, Not Sequence", "是關係，不是順序"),
+      flow([
+        [text("Knowledge informs decisions", "知識支持決策"),
+         text("KB.md preserves verified understanding.", "KB.md 保存經確認的理解。"), "green"],
+        [text("Handoff preserves continuity", "交接維持延續"),
+         text("handoff.md helps people and sessions continue.", "handoff.md 協助成員與 session 接續。"), "green"],
+        [text("Requirements guide implementation", "需求引導實作"),
+         text("PRD.md is used when building a product.", "開發產品時使用 PRD.md。"), "orange"]
+      ]) +
+      `<div class="notice">${text(
+        "These files have different purposes. Creating all three is not mandatory for every task.",
+        "三種檔案用途不同，不是每項任務都必須建立全部文件。"
+      )}</div>`);
+}
+
+function collaboration() {
+  const roles = [
+    ["Chatbot", text("Discuss, explain, and clarify.", "討論、解釋與釐清。")],
+    ["Task Agent", text("Support a defined analytical or organizational task.", "協助明確的分析或整理任務。")],
+    ["Coding Agent", text("Implement diagrams, webpages, and applications.", "實作圖解、網頁與應用程式。")],
+    ["BNA Agent", text("Support Business News Analysis and learning.", "協助商業新聞分析與學習。")]
+  ];
+
+  return panel(text("Human–AI Working Relationship", "人類與 AI 的工作關係"),
+    flow([
+      [text("Human: define the purpose", "人類：定義目的"),
+       text("Questions, context, and intended learning outcomes.", "提問、背景與預期學習成果。"), "pink"],
+      [text("AI: assist the process", "AI：協助處理"),
+       text("Recognize, organize, analyze, explain, and implement.", "辨識、整理、分析、解釋與實作。"), "green"],
+      [text("Human: review and confirm", "人類：審查與確認"),
+       text("Evidence, interpretation, critical thinking, and judgment.", "證據、解讀、批判思考與判斷。"), "pink"]
+    ]) +
+    `<div class="notice">${text(
+      "If something is unclear, return to discussion and analysis. AI does not replace final human confirmation.",
+      "若仍有疑義，返回討論與分析。AI 不取代最終人工確認。"
+    )}</div>`) +
+    panel(text("Functional AI Roles", "AI 功能角色"),
+      `<div class="role-list">${roles.map(r =>
+        `<div class="role"><strong>${r[0]}</strong><p>${r[1]}</p></div>`
+      ).join("")}</div>
+      <p class="muted">${text(
+        "Roles may be performed by the same tool.",
+        "不同角色可以由同一工具執行。"
+      )}</p>`, "green") +
+    panel(text("Handoff Across Members and Sessions", "跨成員與 session 交接"),
+      `<ul>${[
+        text("Completed work", "已完成工作"),
+        text("Confirmed content and decisions", "已確認內容與決策"),
+        text("Unresolved questions", "未解問題"),
+        text("Current document versions", "目前文件版本"),
+        text("Next actions", "下一步行動")
+      ].map(item => `<li>${item}</li>`).join("")}</ul>`);
+}
+
+function product() {
+  return panel(text("Optional Product Pathway", "選用產品路徑"),
+    flow([
+      [text("1 · Demand", "1 · 需求"),
+       text("Who has the problem? What value would solving it provide?", "誰有問題？解決後提供什麼價值？"), "orange"],
+      ["2 · PRD",
+       text("Define users, scope, functions, and specifications.", "定義使用者、範圍、功能與規格。"), "green"],
+      [text("3 · Agent-assisted development", "3 · Agent 協助開發"),
+       text("Implement an initial solution.", "實作初步解決方案。"), "green"],
+      ["4 · MVP",
+       text("Test important assumptions with a minimum viable product.", "以最小可行產品測試重要假設。"), "green"],
+      [text("5 · Market evaluation", "5 · 市場評估"),
+       text("Target audience, usefulness, and willingness to pay.", "目標受眾、實用性與支付意願。"), "orange"],
+      [text("6 · Possible commercialization", "6 · 可能商業化"),
+       text("Decide based on evidence—not deployment alone.", "依證據決定，不只看是否已上線。"), "orange"]
+    ])) +
+    panel(text("Market Relationship", "市場關係"),
+      flow([
+        [text("Producers → Product", "生產者 → 產品"),
+         text("Supply a solution and a value proposition.", "提供解決方案與價值主張。"), "green"],
+        [text("Market", "市場"),
+         text("Connect supply, demand, and transactions.", "連結供給、需求與交易。"), "orange"],
+        [text("Consumers → Value assessment", "消費者 → 價值評估"),
+         text("TA: Target Audience · WTP: Willingness to Pay",
+              "TA：目標受眾 · WTP：支付意願"), "blue"]
+      ])) +
+    panel(text("Decision Guardrail", "決策原則"),
+      `<p>${text(
+        "A published website is not proof of demand. A website or SPA is not automatically a SaaS business.",
+        "網站發布不等於證明需求；網站或 SPA 也不自動等於 SaaS 商業服務。"
+      )}</p>`, "pink");
+}
+
+function outputs() {
+  const formats = [
+    ["Coggle", text("Mind map", "心智圖"),
+     text("Organize topics and relationships.", "整理主題與關係。")],
+    ["SVG", "Scalable Vector Graphics",
+     text("Scalable vector diagrams.", "可縮放的向量圖解。")],
+    ["PNG / JPEG", text("Raster images", "點陣圖片"),
+     text("Share a fixed image representation.", "分享固定的圖片呈現。")],
+    ["HTML", text("Web structure", "網頁結構"),
+     text("Structure and present webpage content.", "建立與呈現網頁內容。")],
+    ["SPA", "Single-Page Application",
+     text("Interactive modules without full page reloads; may include SVG.", "不需完整重載頁面的互動模組，可包含 SVG。")]
+  ];
+
+  return panel(text("Choose the Output for Its Purpose", "依目的選擇輸出"),
+    `<div class="role-list">${formats.map(f =>
+      `<div class="role"><span class="tag orange">${f[0]}</span>
+       <strong>${f[1]}</strong><p>${f[2]}</p></div>`
+    ).join("")}</div>`) +
+    panel(text("Publication Process", "發布流程"),
+      flow([
+        [text("Build", "建立"), text("Approved content → webpage / SPA", "已核准內容 → 網頁 / SPA"), "orange"],
+        [text("Test", "測試"), text("Language, theme, navigation, readability, and links.", "語言、主題、導覽、可讀性與連結。"), "pink"],
+        [text("Deploy", "部署"), text("Publish to a static host such as GitHub Pages.", "發布到 GitHub Pages 等靜態託管服務。"), "orange"],
+        [text("Share", "分享"), text("Open the URL, verify access, then distribute the link.", "開啟網址確認存取，再分享連結。"), "orange"]
+      ])) +
+    panel(text("This Application", "此應用程式"),
+      `<ul>
+        <li>${text("Six bilingual modules with hash-based navigation.", "六個雙語模組，使用 hash 導覽。")}</li>
+        <li>${text("Responsive single-column layout and light/dark themes.", "響應式單欄布局與淺色 / 深色主題。")}</li>
+        <li>${text("Local browser preferences and progress.", "偏好與進度保存在本機瀏覽器。")}</li>
+        <li>${text("No backend, account, database, or cross-device sync.", "不包含後端、帳號、資料庫或跨裝置同步。")}</li>
+      </ul>
+      <p class="muted">${text(
+        "GitHub Pages is a hosting option from the project discussion, not a label in the original handwritten notes.",
+        "GitHub Pages 是專案討論中的託管選項，並非原始手寫筆記中的標籤。"
+      )}</p>`);
+}
+
+const renderers = [overview, workflow, documents, collaboration, product, outputs];
+
+function applyTheme() {
+  document.documentElement.dataset.theme = state.theme;
+  document.querySelector('meta[name="theme-color"]').content =
+    state.theme === "dark" ? "#111923" : "#f5f7fb";
+}
+
+function render() {
+  const m = modules[current];
+  document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : "en";
+  applyTheme();
+
+  document.title = `${t(m.title)} | ${t(ui.brand)}`;
+  $("brand-title").textContent = t(ui.brand);
+  $("skip-link").textContent = t(ui.skip);
+  $("menu-button").setAttribute("aria-label", t(ui.open));
+  $("menu-title").textContent = t(ui.modules);
+  $("menu-description").textContent = t(ui.menuInfo);
+  $("close-menu").setAttribute("aria-label", t(ui.close));
+  $("module-menu").setAttribute("aria-label", t(ui.modules));
+
+  $("language-button").textContent = state.lang === "en" ? "繁中" : "EN";
+  $("language-button").setAttribute("aria-label", t(ui.switchLanguage));
+
+  const nextTheme = state.theme === "light" ? "dark" : "light";
+  $("theme-button").textContent =
+    `${nextTheme === "dark" ? "☾" : "☀"} ${t(ui[nextTheme])}`;
+  $("theme-button").setAttribute("aria-label",
+    text(`Switch to ${nextTheme} theme`,
+         nextTheme === "dark" ? "切換至深色主題" : "切換至淺色主題"));
+
+  $("module-menu").innerHTML = modules.map((item, i) =>
+    `<a href="#/${item.id}" ${i === current ? 'aria-current="page"' : ""}>
+      <span>${String(i + 1).padStart(2, "0")}</span>
+      <span>${t(item.title)}</span>
+    </a>`
+  ).join("");
+
+  $("module-strip").innerHTML = modules.map((item, i) =>
+    `<a href="#/${item.id}" aria-label="${t(item.title)}"
+      ${i === current ? 'aria-current="page"' : ""}></a>`
+  ).join("");
+  $("module-strip").setAttribute("aria-label", t(ui.nav));
+
+  $("module-label").textContent =
+    `${t(ui.module)} ${String(current + 1).padStart(2, "0")} / 06`;
+  $("page-title").textContent = t(m.title);
+  $("page-intro").textContent = t(m.intro);
+  $("content").innerHTML = renderers[current]();
+
+  $("previous-button").textContent = t(ui.previous);
+  $("next-button").textContent = t(ui.next);
+  $("top-button").textContent = t(ui.top);
+  $("previous-button").disabled = current === 0;
+  $("next-button").disabled = current === modules.length - 1;
+  $("bottom-navigation").setAttribute("aria-label", t(ui.nav));
+}
+
+function route() {
+  const id = location.hash.replace(/^#\/?/, "");
+  const index = modules.findIndex(m => m.id === id);
+  if (index < 0) {
+    location.replace("#/overview");
+    return;
+  }
+  current = index;
+  closeMenu(false);
+  render();
+  window.scrollTo({ top: 0, behavior: "instant" });
+  $("page-title").focus({ preventScroll: true });
+}
+
+function navigate(index) {
+  if (index >= 0 && index < modules.length) {
+    location.hash = "/" + modules[index].id;
+  }
+}
+
+function openMenu() {
+  $("drawer").hidden = false;
+  $("backdrop").hidden = false;
+  $("menu-button").setAttribute("aria-expanded", "true");
+  $("main").inert = true;
+  document.querySelector("header").inert = true;
+  document.querySelector("footer").inert = true;
+  document.body.style.overflow = "hidden";
+  $("close-menu").focus();
+}
+
+function closeMenu(restore = true) {
+  const wasOpen = !$("drawer").hidden;
+  $("drawer").hidden = true;
+  $("backdrop").hidden = true;
+  $("menu-button").setAttribute("aria-expanded", "false");
+  $("main").inert = false;
+  document.querySelector("header").inert = false;
+  document.querySelector("footer").inert = false;
+  document.body.style.overflow = "";
+  if (wasOpen && restore) $("menu-button").focus();
+}
+
+$("menu-button").addEventListener("click", openMenu);
+$("close-menu").addEventListener("click", () => closeMenu());
+$("backdrop").addEventListener("click", () => closeMenu());
+
+$("module-menu").addEventListener("click", event => {
+  if (event.target.closest("a")) closeMenu();
+});
+
+document.addEventListener("keydown", event => {
+  if ($("drawer").hidden) return;
+
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeMenu();
+  }
+
+  if (event.key === "Tab") {
+    const focusable = [...$("drawer").querySelectorAll("button, a")];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+});
+
+$("language-button").addEventListener("click", () => {
+  state.lang = state.lang === "en" ? "zh" : "en";
+  save();
+  render();
+});
+
+$("theme-button").addEventListener("click", () => {
+  state.theme = state.theme === "light" ? "dark" : "light";
+  save();
+  render();
+});
+
+$("previous-button").addEventListener("click", () => navigate(current - 1));
+$("next-button").addEventListener("click", () => navigate(current + 1));
+
+$("top-button").addEventListener("click", () => {
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: reduced ? "instant" : "smooth" });
+  $("page-title").focus({ preventScroll: true });
+});
+
+$("content").addEventListener("click", event => {
+  const stageButton = event.target.closest("[data-stage]");
+  if (stageButton) {
+    state.stage = Number(stageButton.dataset.stage);
+
+    document.querySelectorAll("[data-stage]").forEach(button => {
+      button.setAttribute("aria-pressed",
+        Number(button.dataset.stage) === state.stage ? "true" : "false");
+    });
+
+    $("stage-detail").innerHTML = stageDetails();
+    $("stage-heading").focus();
+  }
+
+  if (event.target.closest("#reset")) {
+    if (!confirm(t(ui.resetQuestion))) return;
+    state.done.fill(false);
+    save();
+    render();
+    $("reset").focus();
+  }
+});
+
+$("content").addEventListener("change", event => {
+  if (event.target.id !== "stage-complete") return;
+  state.done[state.stage] = event.target.checked;
+  save();
+  const stage = state.stage;
+  render();
+  state.stage = stage;
+  $("stage-complete").focus({ preventScroll: true });
+});
+
+window.addEventListener("hashchange", route);
+
+if (!location.hash) {
+  history.replaceState(null, "", "#/overview");
+}
+route();
+</script>
+</body>
+</html>
